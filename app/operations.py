@@ -247,6 +247,50 @@ class Root(Operation):
         """
         self.validate_operands(a, b)
         return Decimal(pow(float(a), 1 / float(b)))
+    
+class Modulus(Operation):
+    """Modulus operation implementation."""
+    def validate_operands(self, a: Decimal, b: Decimal) -> None:
+        if b == 0:
+            raise ValidationError("Modulus by zero is not allowed")
+
+    def execute(self, a: Decimal, b: Decimal) -> Decimal:
+        self.validate_operands(a, b)
+        return a % b
+
+
+class IntegerDivision(Operation):
+    """Integer division operation implementation."""
+    def validate_operands(self, a: Decimal, b: Decimal) -> None:
+        if b == 0:
+            raise ValidationError("Integer division by zero is not allowed")
+
+    def execute(self, a: Decimal, b: Decimal) -> Decimal:
+        self.validate_operands(a, b)
+        return a // b
+
+
+class Percentage(Operation):
+    """Percentage operation implementation."""
+    def validate_operands(self, a: Decimal, b: Decimal) -> None:
+        if b == 0:
+            raise ValidationError("Cannot calculate percentage of zero")
+
+    def execute(self, a: Decimal, b: Decimal) -> Decimal:
+        self.validate_operands(a, b)
+        return (a / b) * Decimal("100")
+    
+class AbsoluteDifference(Operation):
+    """
+    Absolute difference operation implementation.
+
+    Calculates the absolute difference between two numbers.
+    """
+
+    def execute(self, a: Decimal, b: Decimal) -> Decimal:
+        self.validate_operands(a, b)
+        return abs(a - b)
+
 
 
 class OperationFactory:
@@ -265,7 +309,11 @@ class OperationFactory:
         'multiply': Multiplication,
         'divide': Division,
         'power': Power,
-        'root': Root
+        'root': Root,
+        'modulus': Modulus,
+        'int_divide': IntegerDivision,
+        'percent': Percentage,
+        'abs_diff': AbsoluteDifference
     }
 
     @classmethod
