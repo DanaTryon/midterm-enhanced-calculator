@@ -84,3 +84,6 @@ dmypy.json
 
 # Local development configuration
 local_settings.py
+
+# personal text file
+MidCourseReflection.txt

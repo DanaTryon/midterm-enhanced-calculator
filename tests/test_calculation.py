@@ -123,6 +123,21 @@ def test_calculation_equality_with_non_calculation():
     calc = Calculation("Addition", Decimal("2"), Decimal("3"))
     assert (calc == "not a calculation") is False
 
+def test_integer_division():
+    calc = Calculation("IntegerDivision", Decimal("10"), Decimal("3"))
+    assert calc.result == Decimal("3")
+
+def test_modulus():
+    calc = Calculation("Modulus", Decimal("10"), Decimal("3"))
+    assert calc.result == Decimal("1")
+
+def test_absolute_difference():
+    calc = Calculation("AbsoluteDifference", Decimal("10"), Decimal("3"))
+    assert calc.result == Decimal("7")
+
+def test_percent():
+    calc = Calculation("Percent", Decimal("200"), Decimal("15"))
+    assert calc.result == Decimal("30")
 
 
 

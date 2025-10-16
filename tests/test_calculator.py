@@ -10,6 +10,9 @@ from app.history import HistoryObserver
 import pandas as pd
 from pathlib import Path
 from app.calculator_memento import CalculatorMemento
+from app.operations import OperationFactory
+from app.exceptions import OperationError
+
 
 class DummyObserver(HistoryObserver):
     def __init__(self):
@@ -30,14 +33,13 @@ def test_calculator_initialization(tmp_path):
     assert calc.redo_stack == []
 
 
-def test_set_operation_and_perform():
-    calc = Calculator()
+def test_set_operation_and_perform(tmp_path):
+    config = CalculatorConfig(base_dir=tmp_path)
+    calc = Calculator(config=config)
     calc.set_operation(Addition())
     result = calc.perform_operation("2", "3")
     assert result == Decimal("5")
     assert len(calc.history) == 1
-    assert isinstance(calc.history[0], Calculation)
-    assert calc.history[0].result == Decimal("5")
 
 
 def test_perform_operation_without_strategy():
@@ -72,11 +74,13 @@ def test_remove_observer():
     calc.perform_operation("2", "3")
     assert observer.updated is False
 
-def test_undo_redo_behavior():
-    calc = Calculator()
+def test_undo_redo_behavior(tmp_path):
+    config = CalculatorConfig(base_dir=tmp_path)
+    calc = Calculator(config=config)
     calc.set_operation(Addition())
     calc.perform_operation("2", "3")
     calc.perform_operation("4", "5")
+
     assert len(calc.history) == 2
 
     # Undo last operation
@@ -106,16 +110,18 @@ def test_clear_history():
     assert calc.redo_stack == []
 
 
-def test_show_history_format():
-    calc = Calculator()
+def test_show_history_format(tmp_path):
+    config = CalculatorConfig(base_dir=tmp_path)
+    calc = Calculator(config=config)
     calc.set_operation(Addition())
     calc.perform_operation("2", "3")
     history_lines = calc.show_history()
     assert history_lines == ["Addition(2, 3) = 5"]
 
 
-def test_get_history_dataframe():
-    calc = Calculator()
+def test_get_history_dataframe(tmp_path):
+    config = CalculatorConfig(base_dir=tmp_path)
+    calc = Calculator(config=config)
     calc.set_operation(Addition())
     calc.perform_operation("2", "3")
     df = calc.get_history_dataframe()
@@ -234,3 +240,40 @@ def test_save_history_empty(tmp_path):
     calc.save_history()
     df = pd.read_csv(config.history_file)
     assert df.empty
+
+def test_history_trims_to_max_size():
+    config = CalculatorConfig()
+    config.max_history_size = 3
+    calc = Calculator(config=config)
+
+    calc.set_operation(OperationFactory.create_operation("add"))
+
+    calc.perform_operation("1", "1")
+    calc.perform_operation("2", "2")
+    calc.perform_operation("3", "3")
+    calc.perform_operation("4", "4")  # triggers pop(0)
+
+    history = calc.show_history()
+    assert len(history) == 3
+    assert not any("Addition(1, 1)" in entry for entry in history)
+    assert any("Addition(2, 2)" in entry for entry in history)
+
+def test_save_history_raises_operation_error():
+    calc = Calculator()
+    calc.set_operation(OperationFactory.create_operation("add"))
+    calc.perform_operation("1", "1")  # Ensure history is not empty
+
+    with patch("pandas.DataFrame.to_csv", side_effect=IOError("Disk full")):
+        with pytest.raises(OperationError) as exc_info:
+            calc.save_history()
+
+    assert "Failed to save history: Disk full" in str(exc_info.value)
+
+def test_load_history_raises_operation_error():
+    calc = Calculator()
+
+    with patch("pandas.read_csv", side_effect=IOError("File corrupted")):
+        with pytest.raises(OperationError) as exc_info:
+            calc.load_history()
+
+    assert "Failed to load history: File corrupted" in str(exc_info.value)

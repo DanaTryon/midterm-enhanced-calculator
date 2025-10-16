@@ -270,15 +270,15 @@ class IntegerDivision(Operation):
         return a // b
 
 
-class Percentage(Operation):
-    """Percentage operation implementation."""
+class Percent(Operation):
+    """Percent operation implementation."""
     def validate_operands(self, a: Decimal, b: Decimal) -> None:
         if b == 0:
-            raise ValidationError("Cannot calculate percentage of zero")
+            raise ValidationError("Cannot calculate percent of zero")
 
     def execute(self, a: Decimal, b: Decimal) -> Decimal:
         self.validate_operands(a, b)
-        return (a / b) * Decimal("100")
+        return (a * Decimal("100")) / b
     
 class AbsoluteDifference(Operation):
     """
@@ -312,7 +312,7 @@ class OperationFactory:
         'root': Root,
         'modulus': Modulus,
         'int_divide': IntegerDivision,
-        'percent': Percentage,
+        'percent': Percent,
         'abs_diff': AbsoluteDifference
     }
 

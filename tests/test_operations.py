@@ -2,7 +2,7 @@ import pytest
 from decimal import Decimal
 from app.operations import (
     Addition, Subtraction, Multiplication, Division,
-    Power, Root, Modulus, IntegerDivision, Percentage, 
+    Power, Root, Modulus, IntegerDivision, Percent, 
     AbsoluteDifference, OperationFactory
 )
 from app.exceptions import ValidationError
@@ -92,7 +92,7 @@ def test_operation_str_methods():
     assert str(Root()) == "Root"
     assert str(Modulus()) == "Modulus"
     assert str(IntegerDivision()) == "IntegerDivision"
-    assert str(Percentage()) == "Percentage"
+    assert str(Percent()) == "Percent"
 
 def test_modulus():
     op = Modulus()
@@ -112,14 +112,9 @@ def test_integer_division_by_zero():
     with pytest.raises(ValidationError, match="Integer division by zero is not allowed"):
         op.execute(Decimal("10"), Decimal("0"))
 
-def test_percentage():
-    op = Percentage()
-    assert op.execute(Decimal("50"), Decimal("200")) == Decimal("25")
-
-def test_percentage_of_zero():
-    op = Percentage()
-    with pytest.raises(ValidationError, match="Cannot calculate percentage of zero"):
-        op.execute(Decimal("50"), Decimal("0"))
+def test_percent():
+    op = Percent()
+    assert op.execute(Decimal("10"), Decimal("50")) == Decimal("20")
 
 def test_absolute_difference_positive():
     op = AbsoluteDifference()
@@ -132,6 +127,11 @@ def test_absolute_difference_negative():
 def test_absolute_difference_zero():
     op = AbsoluteDifference()
     assert op.execute(Decimal("5"), Decimal("5")) == Decimal("0")
+
+def test_percent_validation_error_on_zero_divisor():
+    op = Percent()
+    with pytest.raises(ValidationError, match="Cannot calculate percent of zero"):
+        op.execute(Decimal("10"), Decimal("0"))
 
 
 

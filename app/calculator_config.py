@@ -68,9 +68,13 @@ class CalculatorConfig:
         """
         # Set base directory to project root by default
         project_root = get_project_root()
-        self.base_dir = base_dir or Path(
+        #self.base_dir = base_dir or Path(
+        #    os.getenv('CALCULATOR_BASE_DIR', str(project_root))
+        #).resolve()
+        self.base_dir = Path(base_dir) if base_dir else Path(
             os.getenv('CALCULATOR_BASE_DIR', str(project_root))
         ).resolve()
+
 
         # Maximum history size
         self.max_history_size = (
