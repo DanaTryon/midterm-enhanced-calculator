@@ -269,8 +269,27 @@ def test_save_history_raises_operation_error():
 
     assert "Failed to save history: Disk full" in str(exc_info.value)
 
-def test_load_history_raises_operation_error():
-    calc = Calculator()
+#def test_load_history_raises_operation_error():
+ #   calc = Calculator()
+#
+ #   with patch("pandas.read_csv", side_effect=IOError("File corrupted")):
+  #      with pytest.raises(OperationError) as exc_info:
+   #         calc.load_history()
+#
+ #   assert "Failed to load history: File corrupted" in str(exc_info.value)
+
+def test_load_history_raises_operation_error(tmp_path):
+    # Subclass CalculatorConfig to override history_dir
+    class TestConfig(CalculatorConfig):
+        @property
+        def history_dir(self):
+            return tmp_path
+
+    config = TestConfig()
+    corrupted_file = config.history_file
+    corrupted_file.write_text("corrupted,data\nnot,valid")
+
+    calc = Calculator(config=config)
 
     with patch("pandas.read_csv", side_effect=IOError("File corrupted")):
         with pytest.raises(OperationError) as exc_info:
