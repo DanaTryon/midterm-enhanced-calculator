@@ -74,26 +74,53 @@ pip install -r requirements.txt
 ---
 
 ## ⚙️ Configuration Setup
+This application uses a `.env` file and the `python-dotenv` package to manage configuration settings. All environment variables are loaded at startup and validated to ensure safe defaults.
 
-### `.env` File
+#### ✅ Create a .env File in the Project Root
 
-Create a `.env` file in the project root to configure environment variables:
+```bash
+# Base Directories
+CALCULATOR_BASE_DIR=./
+CALCULATOR_LOG_DIR=./logs
+CALCULATOR_HISTORY_DIR=./history
+CALCULATOR_LOG_FILE=./logs/calculator.log
+CALCULATOR_HISTORY_FILE=./history/calculator_history.csv
 
-```env
+# History Settings
 CALCULATOR_MAX_HISTORY_SIZE=100
 CALCULATOR_AUTO_SAVE=true
+
+# Calculation Settings
+CALCULATOR_PRECISION=3
+CALCULATOR_MAX_INPUT_VALUE=1000000000
 CALCULATOR_DEFAULT_ENCODING=utf-8
 ```
 
-These variables control:
+#### ✅ What Each Variable Does
 
-- CALCULATOR_MAX_HISTORY_SIZE: Limits the number of stored history entries (default: 100)
+| Variable	       |   Purpose                   |
+|------------------|-----------------------------|
+|CALCULATOR_BASE_DIR	|  Root directory for calculator data|
+|CALCULATOR_LOG_DIR	|Directory where log files are stored|
+|CALCULATOR_HISTORY_DIR	|Directory where history files are stored|
+|CALCULATOR_LOG_FILE	|Full path to the log file|
+|CALCULATOR_HISTORY_FILE	|Full path to the history CSV file|
+|CALCULATOR_MAX_HISTORY_SIZE	|Maximum number of entries stored in history|
+|CALCULATOR_AUTO_SAVE	|Automatically save history after each operation (true or false)|
+|CALCULATOR_PRECISION	|Number of decimal places for calculation results|
+|CALCULATOR_MAX_INPUT_VALUE	|Maximum allowed input value for calculations|
+|CALCULATOR_DEFAULT_ENCODING	|Encoding used for file operations (utf-8, ascii, etc.)|
 
-- CALCULATOR_AUTO_SAVE: Enables automatic saving of history after each operation
 
-- CALCULATOR_DEFAULT_ENCODING: Sets the encoding used for reading/writing history files
 
-Make sure your application loads these values using load_dotenv().
+#### ✅ How It Works
+- The .env file is loaded using python-dotenv
+
+- All values are accessed via os.getenv() inside calculator_config.py
+
+- Defaults are applied if values are missing
+
+- Validation is performed at startup to catch misconfigurations
 
 ---
 
