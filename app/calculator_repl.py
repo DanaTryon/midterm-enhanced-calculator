@@ -133,8 +133,8 @@ def calculator_repl():
                         # Normalize the result if it's a Decimal
                         if isinstance(result, Decimal):
                             #result = result.normalize() # This caused inconsistent results being reported in sci notation
-                            result = result.quantize(Decimal("1.000000")).normalize()
-                            result = str(result) if "." in str(result) else str(result + Decimal("0.00"))
+                            result = result.quantize(Decimal("1.000"))
+                            result = format(result, "f")
 
                         print(Fore.GREEN + f"\nResult: {result}")
                     except (ValidationError, OperationError) as e:
